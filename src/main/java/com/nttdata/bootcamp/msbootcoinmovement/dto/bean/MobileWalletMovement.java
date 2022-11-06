@@ -1,0 +1,62 @@
+package com.nttdata.bootcamp.msbootcoinmovement.dto.bean;
+
+import com.nttdata.bootcamp.msbootcoinmovement.exception.ResourceNotFoundException;
+import com.nttdata.bootcamp.msbootcoinmovement.model.Bootcoin;
+import com.nttdata.bootcamp.msbootcoinmovement.model.BootcoinMovement;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
+
+@SuperBuilder
+@Slf4j
+@Getter
+@Setter
+@Builder
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+public class MobileWalletMovement extends BootcoinMovementBean {
+
+    @Override
+    public Mono<Boolean> validateAvailableBalance(Bootcoin bootcoin) {
+        log.info("ini MobileWalletMovement validateAvailableBalance-------: ");
+        if(this.getBootcoinMovementType().equals("output-transfer")){
+            Double getBalance = (this.getAmount() != null ? this.getAmount() : 0);
+            Double setBalance = (bootcoin.getBalance() != null ? bootcoin.getBalance() : 0) - getBalance;
+            if (setBalance <= 0.0) {
+                return Mono.error(new ResourceNotFoundException("Saldo", "Balance", getBalance.toString()));
+            } else {
+                this.setBalance(setBalance);
+                return Mono.just(true);
+            }
+        }else{
+            return Mono.just(true);
+        }
+    }
+    @Override
+    public Mono<BootcoinMovement> mapperToBootcoinMovement(Bootcoin bootcoin) {
+        log.info("ini MobileWalletMovement mapperToBootcoinMovement-------: ");
+        LocalDateTime date = LocalDateTime.now();
+        Bootcoin bc = bootcoin;
+        bc.setBalance(null);
+        BootcoinMovement bootcoinMovement = BootcoinMovement.builder()
+                .bootcoinMovementType(this.getBootcoinMovementType())
+                .amount(this.getAmount())
+                .balance(this.getBalance())
+                .currency(this.getCurrency())
+                .bootcoinMovementDate(date)
+                .documentNumber(this.getDocumentNumber())
+                .bootcoin(bc)
+                .build();
+        log.info("fn MobileWalletMovement mapperToBootcoinMovement-------: ");
+        return Mono.just(bootcoinMovement);
+    }
+}

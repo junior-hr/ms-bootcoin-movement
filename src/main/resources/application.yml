@@ -1,0 +1,48 @@
+server:
+  port: 8097
+  error:
+    include-message: always
+local:
+  property:
+    host:
+      ms-bank-account: localhost
+      ms-client: localhost
+      ms-credits: localhost
+      ms-loan: localhost
+      ms-debit-card: localhost
+      ms-mobile-wallet: localhost
+      ms-bootcoin: localhost
+spring:
+  application:
+    name: service-bootcoin-movement
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/BootcoinMovementsDB
+      auto-index-creation: true
+  config:
+    import: optional:configserver:http://ms-config-server:8888
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    topic:
+      bootcoin:
+        name: bootcoin-topic
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9093/eureka
+resilience4j:
+  circuitbreaker:
+    instances:
+      bootcoinCB:
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 4
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 8
+        waitDurationInOpenState: 2s
+        permittedNumberOfCallsInHalfOpenState: 3
+        
+message:
+  demo: leido desde local
