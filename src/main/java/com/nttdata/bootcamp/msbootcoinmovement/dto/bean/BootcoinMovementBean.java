@@ -4,7 +4,6 @@ import com.nttdata.bootcamp.msbootcoinmovement.model.*;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
-import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ import java.time.LocalDateTime;
 @Data
 @SuperBuilder
 @ToString
-@Builder
+
 public abstract class BootcoinMovementBean {
 
     private String bootcoinMovementType;

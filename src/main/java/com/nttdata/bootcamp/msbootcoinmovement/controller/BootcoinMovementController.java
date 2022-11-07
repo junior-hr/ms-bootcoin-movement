@@ -40,16 +40,12 @@ public class BootcoinMovementController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<Map<String, Object>>> saveBootcoinMovement(@Valid @RequestBody Mono<MovementAccount> movementAccount) {
-        Map<String, Object> request = new HashMap<>();
-        return movementAccount.flatMap(mvDto ->
-                service.save(mvDto).map(c -> {
-                    request.put("Movimiento Bootcoin", c);
-                    request.put("mensaje", "Movimiento de Bootcoin guardado con exito");
-                    request.put("timestamp", new Date());
-                    return ResponseEntity.created(URI.create("/api/bootcoinmovements/".concat(c.getIdBootcoinMovement())))
-                            .contentType(MediaType.APPLICATION_JSON).body(request);
-                })
+    public Mono<ResponseEntity<BootcoinMovement>> saveBootcoinMovement(@Valid @RequestBody Mono<MovementAccount> movementAccount) {
+        return movementAccount.flatMap(mvDto -> service.save(mvDto)
+                .doOnNext(s -> log.info("--saveBootcoinMovement-------s : " + s))
+                .map(c -> ResponseEntity.created(URI.create("/api/bootcoinmovements/".concat(c.getIdBootcoinMovement())))
+                        .contentType(MediaType.APPLICATION_JSON).body(c)
+                )
         );
     }
 

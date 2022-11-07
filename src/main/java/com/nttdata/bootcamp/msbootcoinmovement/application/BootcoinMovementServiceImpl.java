@@ -48,7 +48,7 @@ public class BootcoinMovementServiceImpl implements BootcoinMovementService {
                                 .flatMap(mvt -> bootcoinMovementRepository.save(mvt))
                                 .flatMap(mvt -> validateTransferBootcoin(movementDto).then(Mono.just(mvt)))
                                 .flatMap(mvt -> {
-                                    bootcoinProducer.sendMessage(mapperBootcoinBalanceModel(mvt.getIdBootcoinMovement(), mvt.getBalance()));
+                                    bootcoinProducer.sendMessage(mapperBootcoinBalanceModel(mvt.getBootcoin().getIdBootCoin(), mvt.getBalance()));
                                     return Mono.just(mvt);
                                 })
                         )
@@ -66,9 +66,9 @@ public class BootcoinMovementServiceImpl implements BootcoinMovementService {
 
     public Mono<Bootcoin> validateTransferBootcoin(BootcoinMovementBean bootcoinMovementBean) {
         log.info("ini validateTransfer-------0: " + bootcoinMovementBean.toString());
-        if (bootcoinMovementBean.getBootcoinMovementType().equals("output-transfer")) { // transferencia de salida.
-            log.info("1 validateTransfer-------output-transfer: ");
-            return bootcoinRepository.findBootcoinByDocumentNumber(bootcoinMovementBean.getDocumentNumberForTransfer())
+        if (bootcoinMovementBean.getBootcoinMovementType().equals("transfer-out")) { // transferencia de salida.
+            log.info("1 validateTransfer-------transfer-out: ");
+            return bootcoinRepository.findBootcoinByDocumentNumber(bootcoinMovementBean.getDocumentNumber())
                     .switchIfEmpty(Mono.error(new ResourceNotFoundException("Bootcoin", "DocumentNumber", bootcoinMovementBean.getDocumentNumberForTransfer())))
                     .flatMap(ac -> {
 
@@ -84,7 +84,7 @@ public class BootcoinMovementServiceImpl implements BootcoinMovementService {
                     });
         } else if (bootcoinMovementBean.getBootcoinMovementType().equals("input-transfer")) {
             log.info("2 validateTransfer-------input-transfer: ");
-            return bootcoinRepository.findBootcoinByDocumentNumber(bootcoinMovementBean.getDocumentNumberForTransfer())
+            return bootcoinRepository.findBootcoinByDocumentNumber(bootcoinMovementBean.getDocumentNumber())
                     .switchIfEmpty(Mono.error(new ResourceNotFoundException("Bootcoin", "DocumentNumber", bootcoinMovementBean.getDocumentNumberForTransfer())));
         } else {
             log.info("3 validateTransfer------- : ");

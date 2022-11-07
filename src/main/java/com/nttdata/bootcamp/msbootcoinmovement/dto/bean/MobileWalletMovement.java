@@ -5,30 +5,26 @@ import com.nttdata.bootcamp.msbootcoinmovement.model.Bootcoin;
 import com.nttdata.bootcamp.msbootcoinmovement.model.BootcoinMovement;
 import lombok.Builder;
 import lombok.ToString;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
-@SuperBuilder
-@Slf4j
-@Getter
-@Setter
-@Builder
-@ToString
 @AllArgsConstructor
-@NoArgsConstructor
+@Slf4j
+@Data
+@SuperBuilder
+@ToString
+@Builder
 public class MobileWalletMovement extends BootcoinMovementBean {
 
     @Override
     public Mono<Boolean> validateAvailableBalance(Bootcoin bootcoin) {
         log.info("ini MobileWalletMovement validateAvailableBalance-------: ");
-        if(this.getBootcoinMovementType().equals("output-transfer")){
+        if (this.getBootcoinMovementType().equals("transfer-out")) {
             Double getBalance = (this.getAmount() != null ? this.getAmount() : 0);
             Double setBalance = (bootcoin.getBalance() != null ? bootcoin.getBalance() : 0) - getBalance;
             if (setBalance <= 0.0) {
@@ -37,10 +33,11 @@ public class MobileWalletMovement extends BootcoinMovementBean {
                 this.setBalance(setBalance);
                 return Mono.just(true);
             }
-        }else{
+        } else {
             return Mono.just(true);
         }
     }
+
     @Override
     public Mono<BootcoinMovement> mapperToBootcoinMovement(Bootcoin bootcoin) {
         log.info("ini MobileWalletMovement mapperToBootcoinMovement-------: ");
